@@ -21,7 +21,7 @@ Future<Player> createPlayer(Map<String, dynamic> json) async {
     'avatar_id': json['avatar_id'],
     'status': json['status'],
     'score': json['score'] ?? 0,
-    'room_id': json['room_id']
+    'room_code': json['room_code']
   }).select().single();
   logger.d(response);
   final player = Player.fromJson(response);
@@ -35,5 +35,20 @@ Future<void> updatePresence(String playerId) async {
     'is_online': true,
     'last_seen': DateTime.now().toIso8601String(),
   })
+      .eq('id', playerId);
+}
+Future<void> joinRoom(int roomCode,String playerId) async {
+  await supabase
+      .from('players')
+      .update({
+    'room_code': roomCode,
+  })
+      .eq('id', playerId);
+}
+
+Future<void> deleteAccount(String playerId) async {
+  await supabase
+      .from('players')
+      .delete()
       .eq('id', playerId);
 }

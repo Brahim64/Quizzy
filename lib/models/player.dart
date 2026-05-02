@@ -4,7 +4,7 @@ class Player {
   final int avatarId;
   final bool status;
   final int score;
-  final int? roomId;
+  final int? roomCode;
   final DateTime lastSeen ;
 
   Player({
@@ -13,7 +13,7 @@ class Player {
     required this.avatarId,
     required this.status,
     this.score = 0,
-    this.roomId,
+    this.roomCode,
     required this.lastSeen
   });
   Player copyWith({int? score, DateTime? lastSeen}) {
@@ -22,7 +22,7 @@ class Player {
       name: name,
       avatarId: avatarId,
       status: status,
-      roomId: roomId,
+      roomCode: roomCode,
       score: score ?? this.score,
       lastSeen: lastSeen ?? this.lastSeen,
     );
@@ -34,7 +34,7 @@ class Player {
       avatarId: json['avatar_id'],
       status: json['status'],
       score: json['score'] ?? 0,
-      roomId: json['room_id'],
+      roomCode: json['room_code'],
       lastSeen: DateTime.parse(json['last_seen']),
     );
   }
@@ -46,7 +46,7 @@ class Player {
       'avatar_id': avatarId,
       'status': status,
       'score': score,
-      'room_id': roomId,
+      'room_code': roomCode,
       'last_seen': lastSeen.toIso8601String()
     };
   }

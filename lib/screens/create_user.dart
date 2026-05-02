@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quizzy/controllers/game_controller.dart';
 import 'package:quizzy/core/supabase_client.dart';
+import 'package:quizzy/models/roomStatus.dart';
 import 'package:quizzy/screens/create_room.dart';
+import 'package:quizzy/services/room_service.dart';
 import 'package:quizzy/services/user_local_storage.dart';
 import 'package:quizzy/utils/generation.dart';
 import 'package:quizzy/widgets/app_background.dart';
 import 'package:quizzy/widgets/player_profile.dart';
 import 'package:quizzy/services/user_service.dart';
 
-class CreateUser extends StatefulWidget {
+class CreateUser extends ConsumerStatefulWidget {
   const CreateUser({super.key});
 
   @override
-  State<CreateUser> createState() => _CreateUserState();
+  ConsumerState<CreateUser> createState() => _CreateUserState();
 }
 
-class _CreateUserState extends State<CreateUser> {
+class _CreateUserState extends ConsumerState<CreateUser> {
   final supabase = SupabaseService.client;
 
   final _formKey = GlobalKey<FormState>();
@@ -29,10 +33,10 @@ class _CreateUserState extends State<CreateUser> {
   final Map<int,String> userpics={
     0:"assets/images/userpic1.png",
     1:"assets/images/userpic2.png",
-    5:"assets/images/userpic6.png",
-    6:"assets/images/userpic7.png",
-    7:"assets/images/userpic8.png",
-    8:"assets/images/userpic9.png",
+    2:"assets/images/userpic6.png",
+    3:"assets/images/userpic7.png",
+    4:"assets/images/userpic8.png",
+    5:"assets/images/userpic9.png",
   };
 
   int currentpic=0;
@@ -117,21 +121,14 @@ class _CreateUserState extends State<CreateUser> {
 
                       ElevatedButton(
                         onPressed: () async{
-                          int roomId=generateFourDigitNumber();
-                          if (_formKey.currentState?.validate() ?? false) {
-                            print(nameController.text);
-                            print(roomId);
-                            print(currentpic);
+                          if (!(_formKey.currentState?.validate() ?? false)) return;
 
-                          }
+                          await ref.read(gameControllerProvider).createGame(
+                            name: nameController.text,
+                            avatarId: currentpic,
+                          );
 
-                          final player=await createPlayer({
-                            'name':nameController.text,
-                            'avatar_id':currentpic,
-                            'status':true,
-                            'room_id':roomId
-                          });
-                          UserLocalStorage.saveUser(player);
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => CreateRoom()),

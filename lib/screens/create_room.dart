@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quizzy/providers/room_provider.dart';
 import 'package:quizzy/providers/user_provider.dart';
+import 'package:quizzy/services/user_service.dart';
 import 'package:quizzy/widgets/app_background.dart';
-import 'package:quizzy/services/user_local_storage.dart';
+import 'package:quizzy/widgets/online_players.dart';
 
 class CreateRoom extends ConsumerStatefulWidget {
 
@@ -15,18 +17,17 @@ class _CreateRoomState extends ConsumerState<CreateRoom> {
   void initState() {
     super.initState();
     // Consume the load logic once
-    _initUser();
+   // _initUser();
   }
 
-  Future<void> _initUser() async {
-    await ref.read(userProvider.notifier).loadUser();
-  }
+
 
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(userProvider);
-    if (user == null) {
+    final player = ref.watch(userProvider);
+    final room=ref.watch(roomProvider);
+    if (player == null) {
       return Placeholder();
     }
 
@@ -37,8 +38,10 @@ class _CreateRoomState extends ConsumerState<CreateRoom> {
         Row(
           children: [
             IconButton(onPressed: () {
-      Navigator.pop(context);
-      }, icon: Icon(Icons.arrow_circle_left,color: Colors.white,size: 40,)),
+              deleteAccount(player.id);
+            Navigator.pop(context);
+        }
+        , icon: Icon(Icons.arrow_circle_left,color: Colors.white,size: 40,)),
             SizedBox(width: 20,),
             Text('Room Lobby',style: TextStyle(color: Colors.white,fontSize: 30,
                 decoration: TextDecoration.none),),
@@ -56,7 +59,7 @@ class _CreateRoomState extends ConsumerState<CreateRoom> {
               children: [
               Text('ROOM CODE',style: TextStyle(color: Colors.grey.shade400,fontSize: 16,
                   decoration: TextDecoration.none),),
-              Text(user!.roomId.toString(),style: TextStyle(color: Colors.white,fontSize: 30,
+              Text(room!.roomCode.toString(),style: TextStyle(color: Colors.white,fontSize: 30,
                 decoration: TextDecoration.none,fontWeight: FontWeight.bold,),),
             ],),
             OutlinedButton(onPressed: (){},style: ButtonStyle(foregroundColor: WidgetStatePropertyAll(Colors.white),), child: Row(
@@ -68,7 +71,16 @@ class _CreateRoomState extends ConsumerState<CreateRoom> {
             ))
           ],
 
-        ),)
+        ),),
+        Center(
+          child: Material(
+            child: SizedBox(
+              height: 300,
+              width: 400,
+              child: OnlinePlayersWidget(roomCode: room.roomCode),
+            ),
+          ),
+        )
 
       ],
 

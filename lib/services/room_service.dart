@@ -20,10 +20,11 @@ var logger = Logger(
 );
 Future<Room> createRoom(Map<String, dynamic> json) async {
   final response=await supabase.from('rooms').insert({
-    'id': json['id'],
-    'avatar_id': json['host_id'],
+    'room_code': json['room_code'],
+    'host_user_id': json['host_user_id'],
     'status': json['status'],
-    'current_question_index': json['current_question_index'] ?? 0,
+    'max_players': json['max_players'],
+    'current_question': json['current_question'] ?? 0,
   }).select().single();
   logger.d(response);
   final room = Room.fromJson(response);

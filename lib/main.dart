@@ -68,7 +68,7 @@ class HomePage extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => CreateUser()),
+                      MaterialPageRoute(builder: (context) => CreateUser(toJoin: false,)),
                     );
                   },
                   style: TextButton.styleFrom(
@@ -82,7 +82,12 @@ class HomePage extends StatelessWidget {
                   child: Text('Create a Room'),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CreateUser(toJoin: true,)),
+                    );
+                  },
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.grey,
                     foregroundColor: Colors.white,

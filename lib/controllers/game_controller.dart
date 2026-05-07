@@ -35,4 +35,14 @@ class GameController {
     ref.read(roomProvider.notifier).setRoom(room);
   }
 
+  Future<void> createUserWithoutRoom({required String name,required int avatarId}) async {
+    final player=await createPlayer({
+      'name': name,
+      'avatar_id': avatarId,
+      'status': true,
+    });
+
+    ref.read(userProvider.notifier).setUser(player);
+  }
+
 }

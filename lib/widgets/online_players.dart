@@ -6,10 +6,19 @@ class OnlinePlayersWidget extends StatelessWidget {
 
   const OnlinePlayersWidget({super.key, required this.roomCode});
 
+
+
   @override
   Widget build(BuildContext context) {
     final supabase = Supabase.instance.client;
-
+    final Map<int, String> userpics = {
+      0: "assets/images/userpic1.png",
+      1: "assets/images/userpic2.png",
+      2: "assets/images/userpic6.png",
+      3: "assets/images/userpic7.png",
+      4: "assets/images/userpic8.png",
+      5: "assets/images/userpic9.png",
+    };
     final stream = supabase
         .from('players')
         .stream(primaryKey: ['id'])
@@ -38,9 +47,9 @@ class OnlinePlayersWidget extends StatelessWidget {
             final player = players[index];
 
             return ListTile(
-              leading: const Icon(Icons.circle, color: Colors.green),
+              leading: Image.asset(userpics[player['avatar_id']]!, width: 40, height: 40),
               title: Text(player['name'] ?? 'Unknown'),
-              subtitle: Text('Online'),
+              subtitle: player['status']==true ? Text('Online') :Text('Offline'),
             );
           },
         );

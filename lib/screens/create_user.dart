@@ -2,17 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quizzy/controllers/game_controller.dart';
 import 'package:quizzy/core/supabase_client.dart';
-import 'package:quizzy/models/roomStatus.dart';
 import 'package:quizzy/screens/create_room.dart';
-import 'package:quizzy/services/room_service.dart';
-import 'package:quizzy/services/user_local_storage.dart';
-import 'package:quizzy/utils/generation.dart';
-import 'package:quizzy/widgets/app_background.dart';
-import 'package:quizzy/widgets/player_profile.dart';
+import 'package:quizzy/screens/join_room.dart';
 import 'package:quizzy/services/user_service.dart';
+import 'package:quizzy/widgets/app_background.dart';
 
 class CreateUser extends ConsumerStatefulWidget {
-  const CreateUser({super.key});
+  final bool toJoin;
+  const CreateUser({Key? key, required this.toJoin}) : super(key: key);
 
   @override
   ConsumerState<CreateUser> createState() => _CreateUserState();
@@ -30,32 +27,35 @@ class _CreateUserState extends ConsumerState<CreateUser> {
     "assets/images/userpic3.jpg",
     "assets/images/userpic4.jpg",
   ];*/
-  final Map<int,String> userpics={
-    0:"assets/images/userpic1.png",
-    1:"assets/images/userpic2.png",
-    2:"assets/images/userpic6.png",
-    3:"assets/images/userpic7.png",
-    4:"assets/images/userpic8.png",
-    5:"assets/images/userpic9.png",
+  final Map<int, String> userpics = {
+    0: "assets/images/userpic1.png",
+    1: "assets/images/userpic2.png",
+    2: "assets/images/userpic6.png",
+    3: "assets/images/userpic7.png",
+    4: "assets/images/userpic8.png",
+    5: "assets/images/userpic9.png",
   };
 
-  int currentpic=0;
+  int currentpic = 0;
 
-  void nextPic(){
+  void nextPic() {
     setState(() {
-      currentpic=(currentpic+1)% userpics.length;
+      currentpic = (currentpic + 1) % userpics.length;
     });
   }
-  void previousPic(){
+
+  void previousPic() {
     setState(() {
-      currentpic=(currentpic-1+userpics.length)% userpics.length;
+      currentpic = (currentpic - 1 + userpics.length) % userpics.length;
     });
   }
+
   @override
   void dispose() {
     nameController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,18 +68,22 @@ class _CreateUserState extends ConsumerState<CreateUser> {
               children: [
                 IconButton(
                   onPressed: previousPic,
-                  icon: const Icon(Icons.arrow_circle_left,color: Colors.white,size: 40,),
+                  icon: const Icon(
+                    Icons.arrow_circle_left,
+                    color: Colors.white,
+                    size: 40,
+                  ),
                 ),
-                SizedBox(width: 10,),
-                Image.asset(
-                  userpics[currentpic]!,
-                  width: 100,
-                  height: 100,
-                ),
-                SizedBox(width: 10,),
+                SizedBox(width: 10),
+                Image.asset(userpics[currentpic]!, width: 100, height: 100),
+                SizedBox(width: 10),
                 IconButton(
                   onPressed: nextPic,
-                  icon: const Icon(Icons.arrow_circle_right,color: Colors.white,size: 40,),
+                  icon: const Icon(
+                    Icons.arrow_circle_right,
+                    color: Colors.white,
+                    size: 40,
+                  ),
                 ),
               ],
             ),
@@ -95,8 +99,8 @@ class _CreateUserState extends ConsumerState<CreateUser> {
                     children: [
                       TextFormField(
                         controller: nameController,
-                        style: TextStyle(color: Colors.white,),
-                        
+                        style: TextStyle(color: Colors.white),
+
                         cursorOpacityAnimates: true,
                         cursorColor: Colors.yellow,
                         decoration: const InputDecoration(
@@ -120,26 +124,50 @@ class _CreateUserState extends ConsumerState<CreateUser> {
                       const SizedBox(height: 20),
 
                       ElevatedButton(
-                        onPressed: () async{
-                          if (!(_formKey.currentState?.validate() ?? false)) return;
+                        onPressed: () async {
+  try {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
-                          await ref.read(gameControllerProvider).createGame(
-                            name: nameController.text,
-                            avatarId: currentpic,
-                          );
+    print("Button clicked");
 
+    if (widget.toJoin) {
+      await ref.read(gameControllerProvider).createUserWithoutRoom(
+        name: nameController.text,
+        avatarId: currentpic,
+      );
+    } else {
+      await ref.read(gameControllerProvider).createGame(
+        name: nameController.text,
+        avatarId: currentpic,
+      );
+    }
 
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => CreateRoom()),
-                          );
-                        },
+    print("Before navigation");
+
+    if (!context.mounted) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            widget.toJoin ? JoinRoom() : CreateRoom(),
+      ),
+    );
+
+  } catch (e) {
+    print("ERROR: $e");
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Error: $e")),
+    );
+  }
+},
                         child: const Text("Continue"),
                       ),
                     ],
                   ),
                 ),
-              )
+              ),
             ),
           ],
         ),
